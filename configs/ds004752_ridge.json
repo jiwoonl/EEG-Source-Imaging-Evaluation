@@ -1,0 +1,10 @@
+{
+  "script": "experiments/ds_ridge.py",
+  "description": "Primary low-frequency ridge comparator.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_lowfreq_1to12hz/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common_lowfreq_1to12hz",
+    "alpha": 1000,
+    "results_dir": "results/ds004752_ridge"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "script": "experiments/ds_translation.py",
+  "description": "Low-frequency translation autoencoder.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_lowfreq_1to12hz/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common_lowfreq_1to12hz",
+    "latent_dim": 64,
+    "ae_hidden_dim": 256,
+    "translation_hidden_dim": 512,
+    "dropout": 0.1,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "batch_size": 64,
+    "max_epochs": 80,
+    "patience": 12,
+    "min_delta": 0.0001,
+    "freeze_decoder_epochs": 0,
+    "seed": 7,
+    "device": "auto",
+    "results_dir": "results/ds004752_translation"
+  }
+}

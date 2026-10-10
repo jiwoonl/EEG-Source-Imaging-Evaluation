@@ -1,0 +1,31 @@
+{
+  "script": "experiments/ds_encoders.py",
+  "description": "Fixed-budget EEGNet-style, TCN, masked and FNO comparisons.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_lowfreq_1to12hz/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common_lowfreq_1to12hz",
+    "results_dir": "results/ds004752_neural_reported",
+    "models": [
+      "eegnet",
+      "tcn",
+      "ssl_masked",
+      "fno"
+    ],
+    "hidden_channels": 32,
+    "fno_modes": 24,
+    "dropout": 0.15,
+    "batch_size": 128,
+    "max_epochs": 5,
+    "patience": 2,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.0001,
+    "ssl_pretrain_epochs": 2,
+    "ssl_mask_fraction": 0.25,
+    "max_train_trials_per_fold": 0,
+    "max_val_trials_per_fold": 0,
+    "seed": 29,
+    "device": "auto",
+    "fold_id": null,
+    "phase": null
+  }
+}

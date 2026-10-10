@@ -1,0 +1,121 @@
+{
+  "scope": "Published aggregate values; no per-run predictions. Tolerances reflect rounding only, not training variability.",
+  "absolute_rounding_tolerance": {
+    "three_decimal_metrics": 0.0005,
+    "two_decimal_mm": 0.005
+  },
+  "ds004752": {
+    "ds004752_ridge": {
+      "encoding_r": 0.193,
+      "maintenance_r": 0.198,
+      "encoding_r2": -0.218,
+      "maintenance_r2": -0.225
+    },
+    "ds004752_neural": {
+      "encoding_r": 0.199,
+      "maintenance_r": 0.154,
+      "encoding_r2": -0.075,
+      "maintenance_r2": -0.063
+    },
+    "ds004752_translation": {
+      "encoding_r": 0.135,
+      "maintenance_r": 0.117,
+      "encoding_r2": -0.038,
+      "maintenance_r2": -0.018
+    },
+    "ds004752_prior_pearson": {
+      "encoding_r": 0.292,
+      "maintenance_r": 0.256,
+      "encoding_r2": -0.069,
+      "maintenance_r2": -0.077
+    },
+    "ds004752_prior_r2": {
+      "encoding_r": 0.266,
+      "maintenance_r": 0.237,
+      "encoding_r2": 0.048,
+      "maintenance_r2": 0.037
+    },
+    "ds004752_residual_pearson": {
+      "encoding_r": 0.293,
+      "maintenance_r": 0.263,
+      "encoding_r2": -0.048,
+      "maintenance_r2": -0.062
+    },
+    "ds004752_residual_r2": {
+      "encoding_r": 0.272,
+      "maintenance_r": 0.247,
+      "encoding_r2": 0.05,
+      "maintenance_r2": 0.04
+    },
+    "ds004752_eegnet": {
+      "encoding_r": 0.123,
+      "maintenance_r": 0.081,
+      "encoding_r2": 0.001,
+      "maintenance_r2": -0.013
+    },
+    "ds004752_tcn": {
+      "encoding_r": 0.255,
+      "maintenance_r": 0.246,
+      "encoding_r2": 0.018,
+      "maintenance_r2": 0.019
+    },
+    "ds004752_ssl_masked": {
+      "encoding_r": 0.252,
+      "maintenance_r": 0.206,
+      "encoding_r2": 0.035,
+      "maintenance_r2": 0.0
+    },
+    "ds004752_fno": {
+      "encoding_r": 0.248,
+      "maintenance_r": 0.211,
+      "encoding_r2": 0.048,
+      "maintenance_r2": -0.008
+    }
+  },
+  "localize": {
+    "scalp_nested_temperature": {
+      "nll": 0.71,
+      "brier": 0.258,
+      "ece": 0.222,
+      "pooled_auroc_secondary": 0.562
+    },
+    "bem_nested_temperature": {
+      "nll": 0.164,
+      "brier": 0.05,
+      "ece": 0.102,
+      "pooled_auroc_secondary": 0.989
+    },
+    "training_prevalence": {
+      "nll": 0.689
+    },
+    "tcn": {
+      "nll": 0.74
+    },
+    "ctnet_like": {
+      "nll": 0.746
+    }
+  },
+  "spes": {
+    "ridge_median_error_mm": 25.98,
+    "ridge_p75_error_mm": 35.13,
+    "coverage": 0.907,
+    "coverage_ci": [
+      0.868,
+      0.947
+    ],
+    "median_radius_mm": 46.09,
+    "mean_error_reduction_mm": 28.3,
+    "error_reduction_ci_mm": [
+      24.8,
+      31.88
+    ]
+  },
+  "cohort": {
+    "ds004752_participants": 15,
+    "ds004752_trials": 1724,
+    "localize_participants": 7,
+    "localize_runs": 61,
+    "spes_participants": 36,
+    "spes_runs": 323
+  }
+}

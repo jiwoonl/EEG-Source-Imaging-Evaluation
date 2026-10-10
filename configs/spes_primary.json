@@ -1,0 +1,31 @@
+{
+  "script": "experiments/spes_localization.py",
+  "description": "Primary coordinate-ridge evaluation, with additional tree diagnostic.",
+  "args": {
+    "repo_root": ".",
+    "feature_manifest": "data/derived/spes_raw_feature_manifest.tsv",
+    "dataset_root": "data/raw/spes-hd-eeg-seeg",
+    "results_dir": "results/spes_primary",
+    "basis_ridge": 0.001,
+    "coverage": 0.9,
+    "inner_splits": 5,
+    "ridge_alphas": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0,
+      1000.0
+    ],
+    "extra_max_features": [
+      0.5,
+      1.0
+    ],
+    "extra_min_samples_leaf": [
+      2,
+      5
+    ],
+    "n_trees": 100,
+    "seed": 34170
+  }
+}

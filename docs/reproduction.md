@@ -1,97 +1,130 @@
 # Reproduction
 
-Run commands from the repository root. Paths in manifests should refer to your own dataset layout. The code does not download recordings or generate the initial dataset inventory automatically. Derived inputs and saved predictions remain author-held.
+Run commands from the repository root. Download each dataset's released derivatives into the default `data/raw/` directories, or edit the input paths in a copy of the relevant configuration. Dataset links and licenses are in the README. The preparation scripts consume the dataset authors' epoch arrays, beamforming outputs and head models; they do not reconstruct these derivatives from continuous recordings. Downloads are manual.
 
-## ds004752
+## Reported experiment settings
 
-`preprocess/ds_cache.py` reads the dataset's `sub-*/beamforming/*-task-verbalWM-LCMVsources.mat` derivatives and writes trial arrays, cache metadata and participant-held-out split manifests. `preprocess/ds_filter.py` produces the 1–12 Hz cache. These are EEG-derived source targets.
+`configs/` records the settings used for the reported comparisons. Inspect a command before running it:
 
 ```bash
-python preprocess/ds_cache.py --dataset-root /path/to/ds004752/derivatives
-python preprocess/ds_filter.py
-python experiments/ds_prior.py \
-  --operator-mode subject_bank_mean --forward-ridge-alpha 100 --inverse-alpha 0.1
-python experiments/ds_residual.py \
-  --operator-mode subject_bank_mean \
-  --base-forward-ridge-alpha 100 --base-inverse-alpha 0.1 \
-  --residual-feature-mode scalp_plus_base \
-  --residual-alpha 10000 --residual-weight 0.2
+python run_reported.py configs/ds004752_neural_reported.json --dry-run
+python run_reported.py configs/ds004752_neural_reported.json
 ```
 
-These prior/residual settings correspond to the primary proxy-correlation comparison. The additional R²-oriented residual configuration uses forward penalty 0.01, inverse penalty 1, residual penalty 10000 and residual weight 0.1. Configuration selection was exploratory across LOSO results; these commands do not turn it into nested selection. Scaling and operator fitting use the training participants within each fold.
+The runner passes every non-null configuration argument to its experiment. Each configuration has a separate output directory under `results/`. `device: auto` selects available hardware; recorded neural runs used CUDA. For paper comparisons, use these configurations rather than the experiment scripts' exploratory defaults.
 
-| Script | Purpose |
+| Configuration | Analysis |
 | --- | --- |
-| `experiments/ds_ridge.py` | Ridge comparator |
-| `experiments/ds_prior.py` | Empirical operator-bank prior |
-| `experiments/ds_residual.py` | Linear residual correction |
-| `experiments/ds_neural.py` | MLP and forward-consistent neural ablations |
-| `experiments/ds_translation.py` | Translation autoencoder |
-| `experiments/ds_encoders.py` | EEGNet-style, TCN, masked-pretraining and FNO-style comparisons |
+| `ds004752_ridge.json` | Low-frequency ridge, alpha 1000 |
+| `ds004752_prior_pearson.json`, `ds004752_prior_r2.json` | Pearson- and R²-oriented priors |
+| `ds004752_residual_pearson.json`, `ds004752_residual_r2.json` | Corresponding linear residual corrections |
+| `ds004752_neural.json` | Low-frequency empirical-operator neural ablation |
+| `ds004752_translation.json` | Translation autoencoder |
+| `ds004752_neural_reported.json` | EEGNet-style, TCN, masked and FNO comparisons |
+| `ds004752_broadband_{mlp,shared,gated}.json` | Separate supplementary broadband ablation |
+| `localize_nested.json` | Nested logistic and temperature selection |
+| `localize_neural.json`, `localize_ctnet.json` | Scalp neural comparisons |
+| `spes_primary.json` | Coordinate ridge and additional tree diagnostic |
+| `spes_retrieval.json`, `spes_calibration.json` | Fixed retrieval and its calibration sensitivity |
 
-The neural residual/forward-consistency ablation is separate from the linear residual correction above. Use `--help` for each model's arguments; default model choices and training budgets are not necessarily those of every reported comparison.
+The ds004752 encoder configuration fixes five supervised epochs, patience two, two masked-pretraining epochs, seed 29, and no trial subsampling. Neural fitting and scaling use fitting participants, with one separate validation participant. The ds004752 validation rule chooses the next participant in cyclic sorted order after the test participant; Localize-MI neural validation uses the outer-fold index modulo the six sorted training participants. Configuration selection for ds004752 remains exploratory rather than nested.
 
-## Localize-MI
+## ds004752: beamforming derivatives to trial cache
 
-`experiments/localize_common.py` contains source-location scoring, feature extraction and feature-bundle I/O. Feature extraction requires the original EEG epochs, channel metadata, forward solution and head-to-surface transform, together with a stimulation manifest. It is exposed as a Python API; an automatic raw-download-to-manifest pipeline is not included.
-
-The primary bundle contains `bundle_manifest.json` and `feature_bundle.npz`. The NPZ arrays are `participant_id`, `run_id`, `trial_type`, `true_coord`, `scalp_feature` and `peak_coord`. Coordinate arrays have shape `(n_runs, 3)` in the participant's native surface-MRI frame. `scalp_feature` contains one channel-aligned vector per run. The JSON records `n_rows`, `available_feature_keys` and this mapping:
-
-```json
-{
-  "scalp_lowfreq": "scalp_feature",
-  "reconstructed_source_lowfreq": "peak_coord",
-  "oracle_source_lowfreq": "true_coord"
-}
-```
-
-These are retained input-schema names. In particular, `oracle_source_lowfreq` identifies the true-coordinate diagnostic, not measured intracranial activity. `save_feature_bundle()` writes the JSON and NPZ from feature rows. For the reported primary extraction, pass `coordinate_space="surface"`, `post_start_s=0.0`, `post_end_s=0.01`, `ridge_lambda=1e-6` and `softmax_temperature=3.0` to `build_features()`. Do not mix surface-coordinate features with labels from another frame.
+The input directory contains `sub-*/beamforming/*-task-verbalWM-LCMVsources.mat` files.
 
 ```bash
-python experiments/localize_nested.py \
-  --feature-bundle data/derived/localize_features --label-axis y \
-  --n-bootstrap 10000 --seed 34170
+python preprocess/ds_cache.py --dataset-root data/raw/ds004752/derivatives
+python preprocess/ds_filter.py
+python run_reported.py configs/ds004752_ridge.json
+python run_reported.py configs/ds004752_prior_pearson.json
+python run_reported.py configs/ds004752_residual_pearson.json
 ```
 
-The outer-training median y-coordinate sets the binary labels and stays fixed during inner selection. Each outer fold selects logistic regularization, class weighting and temperature using training participants. In the output tables, `nested_logistic_temperature` is the primary calibrated comparison; fixed-head variants are diagnostics. Five held-out participants have single-class labels, so use NLL and Brier as primary scores.
+The first command writes trial arrays, channel labels, cache metadata and participant-held-out split manifests. The second writes the 1–12 Hz versions. Both encoding and memory maintenance are evaluated. The targets are EEG-derived LCMV virtual sensors. The neural forward-consistency ablation is separate from the linear residual correction.
 
-`experiments/localize_neural.py` requires a stimulation manifest and epoch files. For the reported TCN and CTNet-like comparisons, use `--models tcn ctnet_like --seeds 11 29 47`, a 0–50 ms window, 20 temporal bins, hidden width 32, dropout 0.25, batch size 16, learning rate 0.0003, weight decay 0.001, up to 200 epochs and patience 25. The script defines these training settings; the input interval differs from the primary logistic comparator.
+## Localize-MI: epoch derivatives to native-coordinate features
 
-## SPES
+Place the released dataset in `data/raw/localize-mi`, retaining these paths:
 
-The primary estimator requires per-run RMS topographies prepared from the original epochs: intersect good channels across each participant's runs, average epochs, subtract the −0.2–0 s baseline, retain 0.005–0.05 s, take every fifth sample, and compute RMS across time for each channel. Preserve these amplitudes without centering or unit-norm normalization. A dedicated raw-amplitude cache generator and the initial spatial-validation manifest are not included in this release.
-
-`preprocess/spes_cache.py` is a separate retrieval-feature utility. It centers and normalizes each vector, so its output must not be substituted for the primary raw-RMS features. That utility belongs to the supplementary retrieval pathway.
+- `derivatives/epochs/sub-*/eeg/*_epochs.npy` and matching `_epochs.tsv`, `_epochs.json`, `_channels.tsv` files;
+- `derivatives/epochs/sub-*/ieeg/*space-{surface,T1w,MNI152NLin2009aSym}_electrodes.tsv`;
+- `derivatives/sourcemodelling/sub-*/fwd/sub-*_fwd.fif` and `xfm/sub-*_from-head_to-surface.h5`.
 
 ```bash
-python experiments/spes_localization.py \
-  --feature-manifest data/derived/spes_raw_feature_manifest.tsv \
-  --dataset-root /path/to/spes-hd-eeg-seeg \
-  --coverage 0.9 --inner-splits 5 --seed 34170
+python preprocess/localize_manifest.py
+python preprocess/localize_features.py
+python run_reported.py configs/localize_nested.json
+python run_reported.py configs/localize_neural.json
+python run_reported.py configs/localize_ctnet.json
 ```
 
-The feature manifest needs `participant_id`, `run_id`, `feature_npy`, `common_good_channels_txt`, and `mni_x`, `mni_y`, `mni_z`; inspect `load_dataset()` for the full interface. MNI target coordinates are stored in meters and converted to millimeters by the estimator. `feature_npy` contains one RMS value per retained channel, ordered as the channel-name file. Manifest paths are resolved relative to `--repo-root`; electrode locations are read from `--dataset-root`.
+`localize_manifest.py` scans the epoch derivatives, parses stimulation-contact pairs and computes their midpoints in each supplied coordinate frame. The primary feature builder uses the native surface-MRI frame. Its extraction window is 0–10 ms, ridge lambda is 1e-6 and softmax temperature is 3. The scalp vector uses forward-model channel order, zero-filling excluded channels. Labels use the outer-training median native y-coordinate, fixed during inner selection.
 
-The primary predictor constructs 35 geometry/amplitude features and selects a ridge penalty from `{0.01, 0.1, 1, 10, 100, 1000}`. Its radius is the clipped order statistic of selected inner-OOF Euclidean residuals, with rank `min(n, ceil((n + 1) * coverage))`. Model selection and radius estimation reuse the inner predictions. The refitted predictor is evaluated in outer participant-held-out folds; this is not CV+ or independent split conformal calibration.
+| Manifest field | Meaning |
+| --- | --- |
+| `participant_id`, `run_id`, `trial_type` | Group and stimulation identifiers |
+| `eeg_epochs_npy`, `eeg_channels_tsv` | Dataset-relative input paths |
+| `sampling_frequency_hz`, `zero_time_s` | Epoch time-axis metadata |
+| `surface_mid_x`, `surface_mid_y`, `surface_mid_z` | Native surface-MRI stimulation midpoint |
+| `has_surface_midpoint` | Whether both contacts have surface coordinates |
 
-`evaluation/spes_intervals.py` computes the primary ridge coverage and paired mean-error intervals from a locally supplied prediction TSV containing `participant_id`, `run_id`, `model`, `covered`, `error_mm` and `radius_mm`. It matches ridge and coordinate-mean rows by participant and run, retains all runs within each sampled participant, and uses 10,000 cluster bootstrap draws (seeds 34172 and 34270):
+The builder writes `bundle_manifest.json` and `feature_bundle.npz`. Required arrays are `participant_id`, `run_id`, `trial_type`, `true_coord`, `scalp_feature` and `peak_coord`. Coordinate arrays have shape `(n_runs, 3)`. The JSON maps `scalp_lowfreq` to `scalp_feature`, `reconstructed_source_lowfreq` to `peak_coord`, and `oracle_source_lowfreq` to `true_coord`. These retained schema names denote feature groups; the oracle is a true-coordinate diagnostic, not an intracranial signal.
+
+The primary output model is `nested_logistic_temperature`; fixed-head variants are diagnostics. Five held-out participants have single-class labels, so NLL and Brier are primary. Neural comparators use a different 0–50 ms input window with 20 bins and seeds 11, 29 and 47. The CTNet-like variant is a compact comparator inspired by [Zhao et al. (2024)](https://doi.org/10.1038/s41598-024-71118-7).
+
+## SPES: epoch derivatives to reported RMS features
+
+Place the released derivatives in `data/raw/spes-hd-eeg-seeg`. The manifest generator reads each EEG epoch array and its matching epoch/channel TSVs, and looks up stimulation coordinates in the participant's T1w and MNI electrode tables.
 
 ```bash
-python evaluation/spes_intervals.py --predictions /path/to/prediction_rows.tsv
+python preprocess/spes_manifest.py
+python preprocess/spes_primary.py
+python run_reported.py configs/spes_primary.json
+python evaluation/spes_intervals.py --predictions results/spes_primary/prediction_rows.tsv
 ```
 
-These are descriptive percentile intervals on held-out outcomes; overlapping LOSO training sets remain a limitation.
+For each participant, retain the intersection of good channels across included runs. Average epochs, subtract the −0.2–0 s baseline, retain 5–50 ms, take every fifth sample, and compute per-channel RMS. **The reported analysis then centers each run's RMS vector across channels and normalizes it to unit Euclidean norm when nonzero.** No spatial smoothing is applied.
 
-`experiments/spes_calibration.py` instead resplits participants around a fixed retrieval predictor. It requires a separate TSV with `participant_id`, `t1w_error_mm` and `raw_spatial_spread_t1w_mm`:
+The archived 323-run, 35-feature matrix matches this normalized-input pathway. An earlier manuscript/repository description omitted centering and normalization; unnormalized RMS does not reproduce those inputs. The legacy filename `spes_raw_feature_manifest.tsv` is retained as an interface name, not as an indication that amplitudes are unnormalized. New feature manifests record `feature_normalization` explicitly. `--preserve-amplitude` in `spes_cache.py` is available for a separate unnormalized diagnostic and is not used by the reported configuration.
+
+| Manifest field | Meaning |
+| --- | --- |
+| `participant_id`, `run_id`, `trial_type` | Group and stimulation identifiers |
+| `eeg_epochs_npy`, `eeg_channels_tsv` | Dataset-relative input paths |
+| `eeg_sampling_frequency`, `zero_time_s` | Epoch time-axis metadata |
+| `t1w_x`, `t1w_y`, `t1w_z` | Native T1w stimulation coordinates, meters |
+| `mni_x`, `mni_y`, `mni_z` | MNI stimulation coordinates, meters |
+
+The generated feature manifest adds `feature_npy`, `common_good_channels_txt` and `feature_normalization`. Feature paths are relative to the repository root; the common-channel file specifies vector order. The estimator converts MNI targets to millimeters and builds 35 field/geometry features from the normalized vector. Its spherical radius is the clipped order statistic at rank `min(n, ceil((n + 1) * coverage))` of the selected inner-OOF errors. Those predictions serve both ridge selection and radius calibration; this is not CV+ or independent split conformal calibration.
+
+### Fixed-retrieval sensitivity
+
+The supplementary predictor performs leave-one-run-out retrieval within each participant, using normalized RMS vectors, soft kNN with k=3 and temperature 5:
 
 ```bash
-python experiments/spes_calibration.py \
-  --run-metrics /path/to/fixed_retrieval_run_metrics.tsv \
-  --n-repeats 500 --seed 34170
+python preprocess/spes_cache.py --feature-mode rms_topography
+python run_reported.py configs/spes_retrieval.json
+python run_reported.py configs/spes_calibration.json
 ```
 
-This fixed-predictor sensitivity does not reproduce the primary coordinate-ridge result. Its input predictions are not included, and the original fixed-retrieval predictor is outside this release.
+Calibration resplits participants around these fixed predictions over 500 repetitions, with fractions 0.3, 0.5 and 0.7 and seed 34170. It does not refit the primary coordinate-ridge model. Its T1w error and spread use millimeters; it is a supplementary sensitivity, not participant-held-out retrieval training.
 
-## What was checked
+## Expected results and tests
 
-The release was checked locally for Python syntax, command-line imports and numerical agreement with the archived analysis code on synthetic inputs. Those checks do not establish a fresh reproduction of the reported experiments. Exact dataset preprocessing inventories, frozen predictions and figure-generation assets are not part of this code-only release.
+[expected_metrics.json](expected_metrics.json) records published aggregate scores. Tolerances describe the rounding precision of the paper, not a guarantee that fresh neural training reproduces a value within that tolerance. Hardware and dependency backends can affect training. No saved per-run predictions are distributed.
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Synthetic tests check participant separation, training-only scaling, proper probability scores, conformal order statistics, native-coordinate labels, channel intersection, RMS normalization, all reported argument sets and command-line entry points. GitHub Actions runs them with Python 3.12 and CPU PyTorch.
+
+Input preparation was additionally checked privately against the existing 61-run Localize-MI and 323-run SPES manifests. SPES preprocessing was rerun for seven recorded runs; its vectors matched the archived inputs. The full 323-run fixed feature matrix was numerically compared as well. These checks do not constitute full model retraining from the original recordings.
+
+## Remaining coverage
+
+The CBraMod pretrained/random one-patch diagnostic is not included. Its encoder/checkpoint-loading code and pretrained weights require a separate setup; the reported 0.707/0.708 NLL values are not reproduced by these scripts. All three primary estimators, their main reported neural comparators, the supplementary broadband controls and fixed-retrieval sensitivity have code and configuration entry points here. Figure generation, dataset-author derivative construction and frozen-output verification remain outside the code-only release.
+
+[v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0) preserves the original code snapshot. The input-preparation tools, reported configurations and CI were added subsequently on `main`; the v1.0 tag is unchanged.

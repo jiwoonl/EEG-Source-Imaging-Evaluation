@@ -33,24 +33,39 @@ python -m pip install -r requirements-training.txt
 
 ## Running the analyses
 
-Download the relevant dataset and prepare its input manifests before running an experiment. [Reproduction instructions](docs/reproduction.md) describe the required inputs, commands and reported settings. Each command-line script also accepts `--help`.
+[Reproduction instructions](docs/reproduction.md) describe dataset preparation, input fields and reported settings. Download each dataset's released derivatives before running these commands:
 
 ```bash
-# ds004752: prepare the common-label cache and its 1–12 Hz version.
-python preprocess/ds_cache.py --dataset-root /path/to/ds004752/derivatives
+# ds004752
+python preprocess/ds_cache.py --dataset-root data/raw/ds004752/derivatives
 python preprocess/ds_filter.py
+python run_reported.py configs/ds004752_neural_reported.json --dry-run
 
-# Localize-MI: evaluate an already prepared feature bundle.
-python experiments/localize_nested.py \
-  --feature-bundle data/derived/localize_features --n-bootstrap 10000
+# Localize-MI
+python preprocess/localize_manifest.py
+python preprocess/localize_features.py
+python run_reported.py configs/localize_nested.json
 
-# SPES: evaluate prepared run-level RMS features and electrode coordinates.
-python experiments/spes_localization.py \
-  --feature-manifest data/derived/spes_raw_feature_manifest.tsv \
-  --dataset-root /path/to/spes-hd-eeg-seeg
+# SPES
+python preprocess/spes_manifest.py
+python preprocess/spes_primary.py
+python run_reported.py configs/spes_primary.json
 ```
 
-Outputs are written under `results/`. These examples require local inputs; cloning the repository alone does not reproduce the reported scores. Full training from the original recordings has not been rerun as part of this code release.
+`configs/` fixes the reported model arguments, seeds and training budgets. `--dry-run` prints the command without fitting a model. Outputs go under `results/`. The scripts start from the dataset authors' released derivatives; downloading the repository alone does not reproduce the paper.
+
+The recorded SPES inputs use channel-centered, unit-norm RMS topographies. The [reproduction notes](docs/reproduction.md#spes-epoch-derivatives-to-reported-rms-features) correct the earlier raw-amplitude description. Model training has not been rerun in this update.
+
+## Tests and versions
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+GitHub Actions checks synthetic preprocessing, participant splits, metrics, reported configurations and CLI imports. [Expected aggregate scores](docs/expected_metrics.json) are provided with their rounding precision. The CBraMod pretrained/random diagnostic remains outside this repository's reproduction coverage.
+
+The original manuscript code snapshot is [v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0). Input preparation, fixed configurations and automated checks were added afterward on `main`; the release tag is preserved.
 
 ## Interpretation
 

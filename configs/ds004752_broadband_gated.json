@@ -1,0 +1,24 @@
+{
+  "script": "experiments/ds_neural.py",
+  "description": "Supplementary broadband operator-bank ablation.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common",
+    "results_dir": "results/ds004752_broadband_gated",
+    "hidden_dim": 512,
+    "dropout": 0.2,
+    "batch_size": 64,
+    "max_epochs": 80,
+    "patience": 12,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "forward_weight": 2.0,
+    "gate_weight": 0.2,
+    "gate_temperature": 1.0,
+    "forward_ridge_alpha": 1.0,
+    "seed": 7,
+    "device": "auto",
+    "fold_id": null,
+    "phase": null
+  }
+}

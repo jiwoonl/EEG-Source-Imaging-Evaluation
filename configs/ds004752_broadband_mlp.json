@@ -1,0 +1,20 @@
+{
+  "script": "experiments/ds_mlp.py",
+  "description": "Supplementary broadband MLP ablation.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common",
+    "results_dir": "results/ds004752_broadband_mlp",
+    "hidden_dim": 512,
+    "dropout": 0.2,
+    "batch_size": 64,
+    "max_epochs": 80,
+    "patience": 12,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "seed": 7,
+    "device": "auto",
+    "fold_id": null,
+    "phase": null
+  }
+}

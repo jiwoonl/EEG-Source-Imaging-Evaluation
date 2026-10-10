@@ -1,0 +1,2 @@
+-r requirements-training.txt
+pytest==9.0.3

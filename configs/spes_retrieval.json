@@ -1,0 +1,14 @@
+{
+  "script": "experiments/spes_retrieval.py",
+  "description": "Supplementary fixed within-participant retrieval predictor.",
+  "args": {
+    "feature_manifest": "data/derived/spes_spatial_retrieval_feature_manifest.tsv",
+    "repo_root": ".",
+    "results_dir": "results/spes_retrieval",
+    "dataset_root": "data/raw/spes-hd-eeg-seeg",
+    "method": "soft_knn",
+    "top_k": 3,
+    "temperature": 5.0,
+    "lle_regularization": 0.01
+  }
+}

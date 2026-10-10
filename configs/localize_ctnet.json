@@ -1,0 +1,39 @@
+{
+  "script": "experiments/localize_neural.py",
+  "description": "Scalp CTNet-like comparison.",
+  "args": {
+    "manifest": "data/derived/localize_mi_stimulation_manifest.tsv",
+    "dataset_root": "data/raw/localize-mi",
+    "cache": "data/cache/localize_mi/run_waveforms.npz",
+    "results_dir": "results/localize_ctnet",
+    "models": [
+      "ctnet_like"
+    ],
+    "seeds": [
+      11,
+      29,
+      47
+    ],
+    "label_axis": "y",
+    "post_start_s": 0.0,
+    "post_end_s": 0.05,
+    "n_time_bins": 20,
+    "hidden": 32,
+    "dropout": 0.25,
+    "batch_size": 16,
+    "max_epochs": 200,
+    "patience": 25,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.001,
+    "temperature_grid": [
+      0.5,
+      0.75,
+      1.0,
+      1.5,
+      2.0,
+      3.0,
+      5.0
+    ],
+    "device": "auto"
+  }
+}

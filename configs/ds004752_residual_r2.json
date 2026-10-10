@@ -1,0 +1,19 @@
+{
+  "script": "experiments/ds_residual.py",
+  "description": "R-squared-oriented linear residual correction.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_lowfreq_1to12hz/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common_lowfreq_1to12hz",
+    "base_forward_ridge_alpha": 0.01,
+    "base_inverse_alpha": 1.0,
+    "operator_mode": "subject_bank_mean",
+    "residual_feature_mode": "scalp_plus_base",
+    "residual_alpha": 10000.0,
+    "residual_weight": 0.1,
+    "residual_rank": 0,
+    "prediction_calibration": "none",
+    "calibration_ridge_alpha": 1e-06,
+    "calibration_gamma_grid": "0,0.1,0.2,0.35,0.5,0.75,1,1.25",
+    "results_dir": "results/ds004752_residual_r2"
+  }
+}

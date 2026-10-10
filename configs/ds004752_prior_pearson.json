@@ -1,0 +1,12 @@
+{
+  "script": "experiments/ds_prior.py",
+  "description": "Pearson-oriented operator-bank prior.",
+  "args": {
+    "split_manifest": "data/derived/ds004752_beamforming_lowfreq_1to12hz/ds004752_beamforming_loso_trial_split.tsv",
+    "cache_root": "data/cache/ds004752/beamforming_common_lowfreq_1to12hz",
+    "forward_ridge_alpha": 100.0,
+    "inverse_alpha": 0.1,
+    "operator_mode": "subject_bank_mean",
+    "results_dir": "results/ds004752_prior_pearson"
+  }
+}

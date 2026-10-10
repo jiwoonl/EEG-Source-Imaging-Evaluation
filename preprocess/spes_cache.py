@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +26,7 @@ def write_tsv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) 
 
 
 def relpath(path: Path, root: Path) -> str:
-    return path.relative_to(root).as_posix()
+    return Path(os.path.relpath(path, root)).as_posix()
 
 
 def absolute_no_resolve(path: Path) -> Path:
@@ -79,11 +80,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--n-post-bins", type=int, default=3)
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--preserve-amplitude",
+        action="store_true",
+        help="Keep amplitudes without centering or unit-norm scaling.",
+    )
     return parser
 
 
-def main() -> None:
-    args = build_parser().parse_args()
+def cache_features(args: argparse.Namespace) -> None:
     repo_root = Path(__file__).resolve().parents[1]
     manifest_path = args.manifest.resolve()
     dataset_root = args.dataset_root.resolve()
@@ -248,10 +253,11 @@ def main() -> None:
                     .reshape(-1)
                     .astype(np.float32)
                 )
-            feature = feature - feature.mean()
-            feature_norm = float(np.linalg.norm(feature))
-            if feature_norm > 0:
-                feature /= feature_norm
+            if not args.preserve_amplitude:
+                feature = feature - feature.mean()
+                feature_norm = float(np.linalg.norm(feature))
+                if feature_norm > 0:
+                    feature /= feature_norm
 
             feature_path = (
                 cache_root
@@ -286,6 +292,9 @@ def main() -> None:
                     "temporal_downsample": args.temporal_downsample,
                     "spatial_smoothing_sigma_mm": args.spatial_smoothing_sigma_mm,
                     "feature_mode": args.feature_mode,
+                    "feature_normalization": (
+                        "none" if args.preserve_amplitude else "center_unit_norm"
+                    ),
                     "n_post_bins": args.n_post_bins,
                     "t1w_x": row["t1w_x"],
                     "t1w_y": row["t1w_y"],
@@ -322,6 +331,7 @@ def main() -> None:
         "temporal_downsample",
         "spatial_smoothing_sigma_mm",
         "feature_mode",
+        "feature_normalization",
         "n_post_bins",
         "t1w_x",
         "t1w_y",
@@ -353,6 +363,10 @@ def main() -> None:
         ),
     }
     print(summary)
+
+
+def main() -> None:
+    cache_features(build_parser().parse_args())
 
 
 if __name__ == "__main__":
