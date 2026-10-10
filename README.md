@@ -65,7 +65,7 @@ python -m pytest -q
 
 GitHub Actions checks synthetic preprocessing, participant splits, metrics, reported configurations and CLI imports. [Expected aggregate scores](docs/expected_metrics.json) are provided with their rounding precision. The CBraMod pretrained/random diagnostic remains outside this repository's reproduction coverage.
 
-The original manuscript code snapshot is [v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0). Input preparation, fixed configurations and automated checks were added afterward on `main`; the release tag is preserved.
+[v1.1](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.1) adds input preparation, fixed configurations, automated checks and the SPES preprocessing clarification. The original [v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0) snapshot is preserved.
 
 ## Interpretation
 

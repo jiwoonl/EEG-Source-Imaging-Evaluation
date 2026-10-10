@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Please cite the associated preprint when using this code."
 title: "EEG Source Imaging Evaluation"
 type: software
-version: "1.0"
+version: "1.1"
 date-released: 2026-10-10
 url: "https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation"
 license: BSD-3-Clause

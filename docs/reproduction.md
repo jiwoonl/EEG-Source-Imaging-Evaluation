@@ -127,4 +127,4 @@ Input preparation was additionally checked privately against the existing 61-run
 
 The CBraMod pretrained/random one-patch diagnostic is not included. Its encoder/checkpoint-loading code and pretrained weights require a separate setup; the reported 0.707/0.708 NLL values are not reproduced by these scripts. All three primary estimators, their main reported neural comparators, the supplementary broadband controls and fixed-retrieval sensitivity have code and configuration entry points here. Figure generation, dataset-author derivative construction and frozen-output verification remain outside the code-only release.
 
-[v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0) preserves the original code snapshot. The input-preparation tools, reported configurations and CI were added subsequently on `main`; the v1.0 tag is unchanged.
+[v1.1](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.1) includes these input-preparation tools, reported configurations, tests and SPES preprocessing clarification. The original [v1.0](https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation/releases/tag/v1.0) tag is unchanged.
