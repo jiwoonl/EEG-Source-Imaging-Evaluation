@@ -1,0 +1,19 @@
+This release contains software only. No recordings, derived datasets,
+saved predictions, manuscript sources, figures or source artwork are included.
+The BSD 3-Clause license in LICENSE applies to the software.
+
+Dataset attribution and terms recorded for the associated study:
+- ds004752 v1.0.1: Dimakopoulos et al., eLife 11:e78677 (2022).
+  https://doi.org/10.18112/openneuro.ds004752.v1.0.1 (CC0)
+- Localize-MI: Mikulan et al., Scientific Data (2020).
+  https://doi.org/10.12751/g-node.1cc1ae (CC BY-NC-SA 4.0)
+- SPES: Parmigiani et al. (2022).
+  https://osf.io/wsgzp/ (CC BY-NC-SA 4.0)
+
+The code imports separately distributed dependencies. Their licenses remain
+with their respective authors. Neural baselines labelled EEGNet-style and
+CTNet-like are compact implementations, not official upstream releases.
+
+The initial empty repository carried an MIT license. Its original notice
+is preserved in LICENSES/MIT-initial.txt. The analysis code retains its
+existing BSD 3-Clause license in LICENSE.

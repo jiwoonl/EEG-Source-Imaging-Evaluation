@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "Please cite the associated preprint when using this code."
+title: "EEG Source Imaging Evaluation"
+type: software
+url: "https://github.com/jiwoonl/EEG-Source-Imaging-Evaluation"
+license: BSD-3-Clause
+authors:
+  - family-names: Lee
+    given-names: Jiwoon
+  - family-names: Kang
+    given-names: Youngshin
+  - family-names: Lee
+    given-names: Junghwan
+  - family-names: Lee
+    given-names: Hyeontae
+  - family-names: Park
+    given-names: Cheolsoo
+preferred-citation:
+  type: unpublished
+  title: "EEG Source Imaging under an Ill-Posed Inverse Problem: Proxy Agreement, Individual Head Models, and Localization Uncertainty"
+  authors:
+    - family-names: Lee
+      given-names: Jiwoon
+    - family-names: Kang
+      given-names: Youngshin
+    - family-names: Lee
+      given-names: Junghwan
+    - family-names: Lee
+      given-names: Hyeontae
+    - family-names: Park
+      given-names: Cheolsoo
+  year: 2026
